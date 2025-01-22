@@ -35,7 +35,7 @@ set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_STANDARD 11)
 
-project(py32-cmake C CXX ASM)
+project(app C CXX ASM)
 
 # override options
 set(ENABLE_HAL_DRIVER ON CACHE BOOL "Enable HAL driver")
@@ -44,10 +44,12 @@ set(ENABLE_SYSTEM_XXX_C ON CACHE BOOL "Enable system_XXX.c")
 set(ENABLE_STARTUP_FILE ON CACHE BOOL "Enable startup file")
 set(ENABLE_LD_SCRIPT ON CACHE BOOL "Enable linker script")
 set(ENABLE_DEBUG_DEFINE ON CACHE BOOL "Enable debug define")
-set(MCU_MODEL "PY32F030x6" CACHE STRING "MCU model, like PY32F030x6")
+set(MCU_MODEL "PY32F030x8" CACHE STRING "MCU model, like PY32F030x8")
+message("MCU_MODEL: ${MCU_MODEL}")
+
 add_subdirectory(Drivers)
 
-set(AUTO_GENERATE_PYOCD_YAML ON)
+set(AUTO_GENERATE_PYOCD_FLASH_SCRIPT ON)
 
 add_executable(${PROJECT_NAME}.elf)
 
@@ -96,7 +98,6 @@ target_link_options(${PROJECT_NAME}.elf
     -static
     -lc
     -lm
-    -Wl,--no-warn-rwx-segments
 )
 
 # printf float
@@ -109,11 +110,11 @@ set(BIN_FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.bin)
 add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
         COMMAND ${CMAKE_OBJCOPY} -Oihex $<TARGET_FILE:${PROJECT_NAME}.elf> ${HEX_FILE}
         COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}.elf> ${BIN_FILE}
-        COMMENT "Building ${HEX_FILE}
-Building ${BIN_FILE}")
+        COMMENT "Building ${HEX_FILE}\nBuilding ${BIN_FILE}")
 
 # auto generate pyocd.yaml
-if(AUTO_GENERATE_PYOCD_YAML)
-    set(PYOCD_CONENT "target_override: ${MCU_MODEL}\npack: Misc/Puya.PY32F0xx_DFP.1.1.9.pack\nfrequency: 1000000")
-    file(WRITE Misc/pyocd.yaml ${PYOCD_CONENT})
+if(AUTO_GENERATE_PYOCD_FLASH_SCRIPT)
+    set(FLASH_SH_CONENT "#!/usr/bin/env bash\npyocd load ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.elf --format elf -t ${MCU_MODEL} --pack ${CMAKE_CURRENT_LIST_DIR}/Misc/Puya.PY32F0xx_DFP.1.1.9.pack -f 1000000")
+    file(WRITE "${PROJECT_BINARY_DIR}/pyocd_flash.sh" ${FLASH_SH_CONENT})
+    file(CHMOD "${PROJECT_BINARY_DIR}/pyocd_flash.sh" PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ)
 endif()
