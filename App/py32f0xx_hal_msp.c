@@ -1,41 +1,24 @@
-/**
-  ******************************************************************************
-  * @file    py32f0xx_hal_msp.c
-  * @author  MCU Application Team
-  * @brief   This file provides code for the MSP Initialization
-  *          and de-Initialization codes.
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) Puya Semiconductor Co.
-  * All rights reserved.</center></h2>
-  *
-  * <h2><center>&copy; Copyright (c) 2016 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
-  ******************************************************************************
-  */
-
-/* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "app_config.h"
 
-/* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
-/* Private function prototypes -----------------------------------------------*/
-/* External functions --------------------------------------------------------*/
+void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc) {
+  __HAL_RCC_SYSCFG_CLK_ENABLE();
+  __HAL_RCC_DMA_CLK_ENABLE();
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+  HAL_SYSCFG_DMA_Req(0);
 
-/**
-  * @brief 初始化全局MSP
-  */
-void HAL_MspInit(void)
-{
+  DMA_Handle.Instance = DMA1_Channel1;
+  DMA_Handle.Init.Direction = DMA_PERIPH_TO_MEMORY;
+  DMA_Handle.Init.PeriphInc = DMA_PINC_DISABLE;
+  DMA_Handle.Init.MemInc = DMA_MINC_ENABLE;
+  DMA_Handle.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
+  DMA_Handle.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
+  DMA_Handle.Init.Mode = DMA_CIRCULAR;
+  DMA_Handle.Init.Priority = DMA_PRIORITY_VERY_HIGH;
+  HAL_DMA_DeInit(&DMA_Handle);
+  HAL_DMA_Init(&DMA_Handle);
+
+  hadc->DMA_Handle = &DMA_Handle;
+  DMA_Handle.Parent = hadc;
+  HAL_NVIC_DisableIRQ(DMA1_Channel1_IRQn);
 }
-
-/************************ (C) COPYRIGHT Puya *****END OF FILE******************/

@@ -64,7 +64,7 @@ set(ENABLE_SYSTEM_XXX_C ON CACHE BOOL "Enable system_XXX.c")
 set(ENABLE_STARTUP_FILE ON CACHE BOOL "Enable startup file")
 set(ENABLE_LD_SCRIPT ON CACHE BOOL "Enable linker script")
 set(ENABLE_DEBUG_DEFINE ON CACHE BOOL "Enable debug define")
-set(MCU_MODEL "PY32F030x6" CACHE STRING "MCU model, like PY32F030x6")
+set(MCU_MODEL "PY32F030x8" CACHE STRING "MCU model, like PY32F030x8")
 ```
 
 You can also delete these lines, modify the CMakeCache.txt file, or use GUI tools or an IDE to configure these settings.
@@ -88,9 +88,9 @@ PY32F003x4, PY32F003x6, PY32F003x8
 PY32F030x4, PY32F030x6, PY32F030x7, PY32F030x8
 ```
 
-#### AUTO_GENERATE_PYOCD_YAML
+#### AUTO_GENERATE_PYOCD_FLASH_SCRIPT
 
-I have written a script in CMake to automatically generate `Misc/pyocd.yaml`. For more information about debugging, please see below.
+I have written a script in CMake to automatically generate `build/pyocd_flash.sh`. For more information about debugging, please see below.
 
 ### 4. Compilation
 
